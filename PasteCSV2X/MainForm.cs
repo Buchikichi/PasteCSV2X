@@ -1,16 +1,56 @@
 ﻿using NPOI.SS.UserModel;
 using PasteCSV2X.CSV;
 using PasteCSV2X.Properties;
+using PasteCSV2X.Util;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace PasteCSV2X
 {
     public partial class MainForm : Form
     {
+        #region Workbook
+        private void AddLog(string message)
+        {
+            var log = LogTextBox.Text;
+            var text = message;
+
+            if (0 < log.Length)
+            {
+                text = "\r\n" + text;
+            }
+            LogTextBox.AppendText(text);
+        }
+
+        private void Paste(IWorkbook book, List<CsvFile> list)
+        {
+            var ini = MyPreference.Instance;
+
+            foreach (ISheet sheet in book)
+            {
+                var sheetName = sheet.SheetName;
+                var info = ini.GetSheetInfo(sheetName);
+
+                if (info == null)
+                {
+                    continue;
+                }
+                foreach (var csv in list)
+                {
+                    if (!Regex.IsMatch(csv.Name, info.Pattern))
+                    {
+                        continue;
+                    }
+                    AddLog($"[{sheetName}]{info.Cell}={csv.Name}");
+                    sheet.Paste(info.Cell, csv.Lines);
+                }
+                //sheet.ProtectSheet(string.Empty);
+            }
+        }
+
         private List<CsvFile> LoadCSV(string path)
         {
             var resultList = new List<CsvFile>();
@@ -21,23 +61,25 @@ namespace PasteCSV2X
             {
                 var csv = loader.LoadAll(name);
 
-                foreach (var line in csv)
-                {
-                    var text = string.Join(",", line);
-
-                    Debug.WriteLine($"[{text}]");
-                }
+                resultList.Add(csv);
             }
             return resultList;
         }
 
-        private void Paste(IWorkbook book, List<CsvFile> list)
+        private void SaveBook(string xlsName, IWorkbook book)
         {
-            foreach (ISheet sheet in book)
+            var dir = Path.GetDirectoryName(xlsName);
+            var name = Path.GetFileNameWithoutExtension(xlsName);
+            var ext = Path.GetExtension(xlsName);
+            var today = DateTime.Now.ToString("yyyyMMdd");
+            var newName = dir + Path.DirectorySeparatorChar + name + today + '.' + ext;
+
+            using (var stream = new FileStream(newName, FileMode.Create))
             {
-                sheet.ProtectSheet(string.Empty);
+                book.Write(stream);
             }
         }
+        #endregion
 
         #region Events
         private void ChooseExcelButton_Click(object sender, EventArgs e)
@@ -75,22 +117,19 @@ namespace PasteCSV2X
 
         private void EnforceButton_Click(object sender, EventArgs e)
         {
-            var xls = ExcelTextBox.Text;
+            var xlsName = ExcelTextBox.Text;
             var csvList = LoadCSV(CsvTextBox.Text);
 
             try
             {
-                var book = WorkbookFactory.Create(xls);
+                var book = WorkbookFactory.Create(xlsName);
 
                 Paste(book, csvList);
-                using (var stream = new FileStream(xls, FileMode.Create))
-                {
-                    book.Write(stream);
-                }
+                SaveBook(xlsName, book);
             }
             catch
             {
-                MessageBox.Show($"Failed.[{xls}]", "PasteCSV2X", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Failed.[{xlsName}]", "PasteCSV2X", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         #endregion

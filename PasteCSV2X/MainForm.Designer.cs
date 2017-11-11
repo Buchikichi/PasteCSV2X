@@ -37,7 +37,7 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.ChooseCSVButton = new System.Windows.Forms.Button();
             this.ChooseExcelButton = new System.Windows.Forms.Button();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.LogTextBox = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -140,14 +140,15 @@
             this.ChooseExcelButton.UseVisualStyleBackColor = true;
             this.ChooseExcelButton.Click += new System.EventHandler(this.ChooseExcelButton_Click);
             // 
-            // textBox1
+            // LogTextBox
             // 
-            this.textBox1.Location = new System.Drawing.Point(61, 82);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(711, 133);
-            this.textBox1.TabIndex = 6;
+            this.LogTextBox.Location = new System.Drawing.Point(61, 82);
+            this.LogTextBox.Multiline = true;
+            this.LogTextBox.Name = "LogTextBox";
+            this.LogTextBox.ReadOnly = true;
+            this.LogTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.LogTextBox.Size = new System.Drawing.Size(711, 133);
+            this.LogTextBox.TabIndex = 6;
             // 
             // MainForm
             // 
@@ -155,7 +156,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.ExitButton;
             this.ClientSize = new System.Drawing.Size(784, 261);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.LogTextBox);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -186,7 +187,7 @@
         private System.Windows.Forms.Button ChooseCSVButton;
         private System.Windows.Forms.Button EnforceButton;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox LogTextBox;
     }
 }
 
